@@ -1,7 +1,7 @@
 import numpy as np
 
 rows = 6  # to customize your own game,
-colums = 7  #''
+colums = 7  # ''
 
 
 def create_baord():  # funcion to create the board
@@ -22,8 +22,10 @@ def get_next_open_row(board, col):
         if board[r][col] == 0:
             return r
 
+
 def print_board(board):
     print(np.flip(board, 0))
+
 
 def winning_moce(board, piece):
     # check hori
@@ -36,18 +38,20 @@ def winning_moce(board, piece):
         for r in range(rows-3):
             if board[r][c] == piece and board[r+1][c] and board[r+2][c] == piece and board[r+3][c] == piece:
                 return True
-    #positive slopes
+    # positive slopes
     for c in range(colums-3):
         for r in range(rows-3):
             if board[r][c] == piece and board[r+1][c+1] and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
                 return True
-    #negatibe slopes
+    # negatibe slopes
     for c in range(colums-3):
         for r in range(3, rows):
             if board[r][c] == piece and board[r-1][c+1] and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
                 return True
 
-board = create_baord()  # calls the function and creates the board connecting it to the varialbe board
+
+# calls the function and creates the board connecting it to the varialbe board
+board = create_baord()
 print_board(board)
 game_over = False
 turn = 0
@@ -61,7 +65,7 @@ while not game_over:
             row = get_next_open_row(board, col)
             drop_piece(board, row, col, 1)
 
-            if winning_moce(board,1):
+            if winning_moce(board, 1):
                 print("Player 1 Wins")
                 game_over = True
 
@@ -72,10 +76,10 @@ while not game_over:
             row = get_next_open_row(board, col)
             drop_piece(board, row, col, 2)
 
-            if winning_moce(board,1):
-                print("Player 1 Wins")
+            if winning_moce(board, 2):
+                print("Player 2 Wins")
                 game_over = True
     print_board(board)
     turn += 1
     turn = turn % 20
-#26:55
+# 26:55
