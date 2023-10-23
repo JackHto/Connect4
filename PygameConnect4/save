@@ -24,3 +24,5 @@ if turn == 0:
             turn += 1
             turn = turn % 20
         # 26:55
+
+        #https://www.youtube.com/watch?v=MMLtza3CZFM&list=PLFCB5Dp81iNV_inzM-R9AKkZZlePCZdtV&index=6
