@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import pygame
 import sys
 import math
@@ -9,6 +10,9 @@ blue = (0, 0, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 yellow = (255, 255, 0)
+
+PLAYER = 0
+AI = 1
 
 
 def create_baord():  # funcion to create the board
@@ -30,26 +34,29 @@ def get_next_open_row(board, col):
             return r
 
 
-def winning_moce(board, piece):
-    # check hori
+def winning_move(board, piece):
+    # Check horizontal locations for win
     for c in range(colums-3):
         for r in range(rows):
-            if board[r][c] == piece and board[r][c+1] and board[r][c+2] == piece and board[r][c+3] == piece:
+            if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
                 return True
-    # check verti
+
+    # Check vertical locations for win
     for c in range(colums):
         for r in range(rows-3):
-            if board[r][c] == piece and board[r+1][c] and board[r+2][c] == piece and board[r+3][c] == piece:
+            if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
                 return True
-    # positive slopes
+
+    # Check positively sloped diaganols
     for c in range(colums-3):
         for r in range(rows-3):
-            if board[r][c] == piece and board[r+1][c+1] and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
+            if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
                 return True
-    # negatibe slopes
+
+    # Check negatively sloped diaganols
     for c in range(colums-3):
         for r in range(3, rows):
-            if board[r][c] == piece and board[r-1][c+1] and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
+            if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
                 return True
 
 
@@ -91,6 +98,8 @@ draw_board(board)
 pygame.display.update()
 myfont = pygame.font.SysFont("monospace", 75)
 
+turn = random.randint(PLAYER, AI)
+
 while not game_over:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -99,18 +108,15 @@ while not game_over:
         if event.type == pygame.MOUSEMOTION:
             pygame.draw.rect(screen, black, (0, 0, width, sqauresize))
             posx = event.pos[0]
-            if turn == 0:
+            if turn == PLAYER:
                 pygame.draw.circle(screen, red, (posx, int(
-                    sqauresize/2)), radius)
-            if turn == 1:
-                pygame.draw.circle(screen, yellow, (posx, int(
                     sqauresize/2)), radius)
         pygame.display.update()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.rect(screen, black, (0, 0, width, sqauresize))
             # print(event.pos)
-            if turn == 0:
+            if turn == PLAYER:
                 posx = event.pos[0]
                 col = int(math.floor(posx/sqauresize))
 
@@ -118,26 +124,33 @@ while not game_over:
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 1)
 
-                    if winning_moce(board, 1):
+                    if winning_move(board, 1):
                         label = myfont.render("Player 1 wins!", 1, red)
                         screen.blit(label, (40, 10))
                         game_over = True
-            else:
-                posx = event.pos[0]
-                col = int(math.floor(posx/sqauresize))
 
-                if is_valid_location(board, col):
-                    row = get_next_open_row(board, col)
-                    drop_piece(board, row, col, 2)
+                    turn += 1
+                    turn = turn % 2
 
-                    if winning_moce(board, 2):
-                        label = myfont.render("Player 2 wins!", 1, yellow)
-                        screen.blit(label, (40, 10))
-                        game_over = True
+                    draw_board(board)
+
+    if turn == AI and not game_over:
+
+        col = random.randint(0, colums - 1)
+
+        if is_valid_location(board, col):
+            pygame.time.wait(500)
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, 2)
+
+            if winning_move(board, 2):
+                label = myfont.render("Player 2 wins!", 1, yellow)
+                screen.blit(label, (40, 10))
+                game_over = True
 
             draw_board(board)
             turn += 1
             turn = turn % 2
-            if game_over:
-                pygame.time.wait(3000)
+    if game_over:
+        pygame.time.wait(3000)
         # print(turn)
