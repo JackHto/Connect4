@@ -4,7 +4,7 @@ import pygame
 import sys
 import math
 
-rows = 6  # to customize your own game,
+rows = 7  # to customize your own game,
 colums = 7  # ''
 blue = (0, 0, 255)
 black = (0, 0, 0)
@@ -18,6 +18,9 @@ AI_PIECE = 2
 
 WINDOW_LENGTH = 4
 EMPTY = 0
+
+def print_board(board):
+	print(np.flip(board, 0))
 
 
 def create_baord():  # funcion to create the board
@@ -34,7 +37,7 @@ def is_valid_location(board, col):
 
 
 def get_next_open_row(board, col):
-    for r in range(rows):
+    for r in range(rows+1):
         if board[r][col] == 0:
             return r
 
@@ -64,28 +67,66 @@ def winning_move(board, piece):
             if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
                 return True
 
+def evaluate_window(window, piece):
+    score = 0
+    opp_piece = PLAYER_PIECE
+
+    if piece == PLAYER_PIECE:
+        opp_piece = AI_PIECE
+
+    #AI's pieces
+    if window.count(piece) == 4:
+        score += 100
+    elif window.count(piece) == 3 and window.count(EMPTY) == 1:
+        score +=10
+    elif window.count(piece) == 2 and window.count(EMPTY) == 1:
+        score +=3
+
+    #Player's pieces 
+    if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
+        score -= 80
+
+    return score
+
 
 def score_position(board, piece):
-    # hori scores
     score = 0
+    #center pieces
+    center_array = [int(i) for i in list(board[:, colums//2])]
+    center_count = center_array.count(piece)
+    score += center_count * 6
+    # hori scores
+   
     for r in range(rows):
         row_array = [int(i) for i in list(board[r, :])]
         for c in range(colums-3):
             window = row_array[c:c+WINDOW_LENGTH]
-            if window.count(piece) == 4:
-                score = 100
-            elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-                score += 10
+            score += evaluate_window(window, piece)
 
     # verti scores
     for c in range(colums):
         col_array = [int(i) for i in list(board[:, c])]
         for r in range(rows - 3):
             window = col_array[r:r+WINDOW_LENGTH]
-            if window.count(piece) == 4:
-                score = 100
-            elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-                score += 10
+            score += evaluate_window(window, piece)
+
+    ##pos slope scores
+    for r in range(rows-3):
+        for c in range(colums-3):
+            window = [board[r+i][c+i] for i in range(WINDOW_LENGTH)]
+            
+            score += evaluate_window(window, piece)
+    
+    ##neg slope scores
+    for r in range(rows-3):
+        for c in range(colums-3):
+            window = [board[r+3-i][c+i] for i in range(WINDOW_LENGTH)]
+
+            score += evaluate_window(window, piece)
+
+
+
+
 
     return score
 # 34;34
@@ -102,7 +143,7 @@ def get_valid_locations(board):
 def pick_best_score(board, piece):
 
     valid_location = get_valid_locations(board)
-    best_score = 0
+    best_score = -10000
     best_col = random.choice(valid_location)
     for col in valid_location:
         row = get_next_open_row(board, col)
@@ -136,6 +177,7 @@ def draw_board(board):
 
 # calls the function and creates the board connecting it to the varialbe board
 board = create_baord()
+print_board(board)
 
 game_over = False
 turn = 0
@@ -203,7 +245,7 @@ while not game_over:
                 label = myfont.render("Player 2 wins!", 1, yellow)
                 screen.blit(label, (40, 10))
                 game_over = True
-
+            print_board(board)
             draw_board(board)
             turn += 1
             turn = turn % 2
