@@ -88,6 +88,8 @@ def evaluate_window(window, piece):
 
     return score
 
+def is_terminal_node(board):
+    return winning_move(board, PLAYER_PIECE) or winning_move(board, AI_PIECE) or len(get_valid_locations(board)) == 0
 
 def score_position(board, piece):
     score = 0
@@ -130,6 +132,42 @@ def score_position(board, piece):
 
     return score
 # 34;34
+def minimax(board, depth, maximizingPlayer):
+    vali_locations = get_valid_locations(board)
+    is_terminal = is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        if is_terminal:    
+            if winning_move(board, AI_PIECE):
+                return (None,1000000000000000000)
+            elif winning_move(board, PLAYER_PIECE):
+                return (None,-1000000000000000000)
+            else:
+                return (None, 0)
+        else: # depth 0
+            return (None, score_position(board, AI_PIECE))
+    if maximizingPlayer:
+        value = -math.inf
+        column = random.choice(vali_locations)
+        for col in vali_locations:
+            row = get_next_open_row(board, col)
+            b_opy = board.copy()
+            drop_piece(b_opy, row, col, AI_PIECE)
+            new_score = minimax(b_opy, depth-1, False)[1]
+            if new_score > value:
+                column = col
+            return column, value
+    else:
+        value = math.inf
+        column = random.choice(vali_locations)
+        for col in vali_locations:
+            row = get_next_open_row(board, col)
+            b_opy = board.copy()
+            drop_piece(b_opy, row, col ,PLAYER_PIECE)
+            new_score = minimax(b_opy, depth-1, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            return column, value
 
 
 def get_valid_locations(board):
@@ -233,8 +271,9 @@ while not game_over:
                     draw_board(board)
 
     if turn == AI and not game_over:
-
-        col = pick_best_score(board, AI_PIECE)
+        #col = random.randint(0, colums-1)
+        #col = pick_best_score(board, AI_PIECE)
+        col, minimax_score = minimax(board, 10, True)
 
         if is_valid_location(board, col):
             pygame.time.wait(500)
