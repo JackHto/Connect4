@@ -273,7 +273,7 @@ while not game_over:
     if turn == AI and not game_over:
         #col = random.randint(0, colums-1)
         #col = pick_best_score(board, AI_PIECE)
-        col, minimax_score = minimax(board, 10, True)
+        col, minimax_score = minimax(board, 4, True)
 
         if is_valid_location(board, col):
             pygame.time.wait(500)
