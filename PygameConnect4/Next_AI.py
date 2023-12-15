@@ -78,13 +78,13 @@ def evaluate_window(window, piece):
     if window.count(piece) == 4:
         score += 100
     elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-        score +=10
+        score +=5
     elif window.count(piece) == 2 and window.count(EMPTY) == 1:
-        score +=3
+        score +=2
 
     #Player's pieces 
     if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-        score -= 80
+        score -= 4
 
     return score
 
@@ -96,7 +96,7 @@ def score_position(board, piece):
     #center pieces
     center_array = [int(i) for i in list(board[:, colums//2])]
     center_count = center_array.count(piece)
-    score += center_count * 6
+    score += center_count * 3
     # hori scores
    
     for r in range(rows):
@@ -154,8 +154,9 @@ def minimax(board, depth, maximizingPlayer):
             drop_piece(b_opy, row, col, AI_PIECE)
             new_score = minimax(b_opy, depth-1, False)[1]
             if new_score > value:
+                value = new_score
                 column = col
-            return column, value
+        return column, value
     else:
         value = math.inf
         column = random.choice(vali_locations)
@@ -167,7 +168,7 @@ def minimax(board, depth, maximizingPlayer):
             if new_score < value:
                 value = new_score
                 column = col
-            return column, value
+        return column, value
 
 
 def get_valid_locations(board):
@@ -273,7 +274,7 @@ while not game_over:
     if turn == AI and not game_over:
         #col = random.randint(0, colums-1)
         #col = pick_best_score(board, AI_PIECE)
-        col, minimax_score = minimax(board, 10, True)
+        col, minimax_score = minimax(board, 4, True)
 
         if is_valid_location(board, col):
             pygame.time.wait(500)
